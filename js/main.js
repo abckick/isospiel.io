@@ -489,6 +489,21 @@ IsoMap = (function() {
         return { x: screenX, y: screenY};
     };
 
+    IsoMap.prototype.getDirectionPhrase = function(dir) {
+        let phrases = {turnleft: ["Links abbiegen.", "Biegen Sie links ab.", "Drehen Sie sich nach links.", "Drehen Sie sich auf links.", "Nach links abbiegen.", "Abbiegung nach links.", "Linkskurve.", "Links."],
+    turnright:["Rechts abbiegen.", "Biegen Sie recht ab.", "Drehen Sie sich nach rechts.", "Drehen Sie sich auf rechts.", "Nach rechts abbiegen.", "Abbiegung nach rechts.", "Rechtskurve.", "Rechts."],
+turnbackwards: ["Umkehren.", "Kehren Sie um.", "Rückwärts drehen.", "Drehen Sie um.", "Umdrehen.", "Drehen Sie zurück.", "Drehen Sie um.", "Kehren Sie zurück.", "Zurückdrehen.", "Zurückkehren.", "Kehrtmachen."],
+ goforward: ["Gehen Sie {0} Zellen weiter.", "Gehen Sie {0} Zellen vorwärts.", "{0} Zellen weiter gehen.", "{0} Zellen vorwärts gehen.", "{0} Zellen nach vorne gehen.", "Machen Sie {0} Schritte vorwärts.", "Gehen Sie {0} Schritte vorwärts.", "Machen Sie {0} Schritte nach vorne.", "Gehen Sie {0} Schritte nach vorne.",
+ "{0} Schritte vorwärts machen.", "{0} Schritte geradeaus gehen.", "{0} Schritte geradeaus machen.", "{0} Schritte vorwärts gehen.", "{0} Schritte nach vorne machen.", "Gehen Sie {0} Mal vorwärts.", "Gehen Sie {0} Mal nach vorne.", "Gehen Sie {0} Mal weiter.", "{0} Mal nach vorne gehen.", "{0} Mal vorwärts gehen.", "{0} Mal weiter gehen.", "Machen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte geradeaus."],
+goforwardc: ["Gehen Sie nach vorne zum {0}en Würfel.", "Gehen Sie geradeaus zum {0}en Würfel.", "Gehen Sie vorwärts zum {0}en Würfel.", "Gehen Sie nach vorne, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie geradeaus, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie vorwärts, bis Sie auf einen {0}en Würfel treffen.", "Vorwärts zum {0}en Würfel gehen.", "Geradeaus zum {0}en Würfel gehen.", "Nach vorne zum {0}en Würfel gehen."]
+}
+if (dir != undefined) {
+    if (dir == "turnleft") { return phrases.turnleft[getRandomInt(phrases.turnleft.length)] }
+    else if (dir == "turnright") { return phrases.turnright[getRandomInt(phrases.turnright.length)] }
+    else if (dir == "goforward") { return phrases.goforward[getRandomInt(phrases.goforward.length)] }
+    else if (dir == "goforwardc") { return phrases.goforwardc[getRandomInt(phrases.goforwardc.length)] }
+}
+    }
     IsoMap.prototype.describePath = function(path, _intersections, places, _targetPoint, _startingPoint) {
         let description
         if (path) {
@@ -508,7 +523,7 @@ IsoMap = (function() {
                 if (a != 0 && _intersections[a-1]) { currentpath = _intersections[a-1] }
                 //let direction = ""
                 console.log("intersection: ", _intersections[a])
-                //console.log(format(phrases.goforward, 228))
+                //console.log(format(this.getDirectionPhrase("goforward") 228))
                 let y = _intersections[a][0]
                 let x = _intersections[a][1]
                 let cube = false
@@ -519,19 +534,19 @@ IsoMap = (function() {
                     direction[a] = "S"
                     if (this.matrix[y+1] != undefined && this.matrix[y+1][x] == 1) cube = true
                     if (direction[a-1] == undefined) { 
-                        tempdesc = tempdesc + format(phrases.turnbackwards) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnbackwards")) + " "
                     }
                     else if (direction[a-1] != undefined && direction[a-1] == "W") { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         //console.log("Turn right and go forward")
                     }
                     else if (direction[a-1] != undefined && direction[a-1] == "E") { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         //console.log("Turn left and go forward")
                     }
                         //tempdesc = tempdesc + format(phrases)
-                        if (cube) { tempdesc = tempdesc + format(phrases.goforwardc, this.info[[y+1, x]].name) + " " }
-                        else { tempdesc = tempdesc + format(phrases.goforward, Math.abs(_intersections[a][0] - currentpath[0])) + " "};
+                        if (cube) { tempdesc = tempdesc + format(this.getDirectionPhrase("goforwardc"), this.info[[y+1, x]].name) + " " }
+                        else { tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_intersections[a][0] - currentpath[0])) + " "};
 
                         console.log(tempdesc)
 
@@ -542,58 +557,58 @@ IsoMap = (function() {
                     if (this.matrix[y-1] != undefined && this.matrix[y-1][x] == 1) cube = true            
                     //console.log(this.matrix[y-1] ? this.matrix[y-1][x] : "not defined")
                     if (direction[a-1] == undefined) { 
-                        //tempdesc = tempdesc + format(phrases.turnright)
+                        //tempdesc = tempdesc + format(this.getDirectionPhrase("turnright"))
                         console.log("Go forward")
                 }
                     else if (direction[a-1] != undefined && direction[a-1] == "W") { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         //console.log("Turn left and go forward") 
                         
                 }
                     else if (direction[a-1] != undefined && direction[a-1] == "E") { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         console.log("Turn right and go forward") }
                     //console.log("go higher")
-                    if (cube) { tempdesc = tempdesc + format(phrases.goforwardc, this.info[[y-1, x]].name) + " " }
-                    else { tempdesc = tempdesc + format(phrases.goforward, Math.abs(_intersections[a][0] - currentpath[0])) + " "};
+                    if (cube) { tempdesc = tempdesc + format(this.getDirectionPhrase("goforwardc"), this.info[[y-1, x]].name) + " " }
+                    else { tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_intersections[a][0] - currentpath[0])) + " "};
                     //if (direction[a])
                 } // higfher?
                 else if ( currentpath[0] == _intersections[a][0] && currentpath[1] < _intersections[a][1] ) {
                     direction[a] = "W"
                     if (this.matrix[y][x+1] != undefined && this.matrix[y][x+1] == 1) cube = true
                     if (direction[a-1] == undefined) { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         console.log("Turn right and go forware") }
                     else if (direction[a-1] != undefined && direction[a-1] == "S") { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         console.log("Turn left and go forward") }
                     else if (direction[a-1] != undefined && direction[a-1] == "N") { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         console.log("Turn right and go forward") }
                     else if (direction[a-1] != undefined && direction[a-1] == "E") { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         console.log("Turn left and go forward") }
-                        if (cube) { tempdesc = tempdesc + format(phrases.goforwardc, this.info[[y, x+1]].name) + " " }
-                        else { tempdesc = tempdesc + format(phrases.goforward, Math.abs(_intersections[a][1] - currentpath[1])) + " "};
+                        if (cube) { tempdesc = tempdesc + format(this.getDirectionPhrase("goforwardc"), this.info[[y, x+1]].name) + " " }
+                        else { tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_intersections[a][1] - currentpath[1])) + " "};
                 } // righter?
                 else if ( currentpath[0] == _intersections[a][0] && currentpath[1] > _intersections[a][1] ) {
                     direction[a] = "E"
                     if (this.matrix[y][x-1] != undefined && this.matrix[y][x-1] == 1) cube = true
                     if (direction[a-1] == undefined) { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         console.log("Turn left and go forward") }
                     else if (direction[a-1] != undefined && direction[a-1] == "S") { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         console.log("Turn right and go forward") }
                     else if (direction[a-1] != undefined && direction[a-1] == "N") { 
-                        tempdesc = tempdesc + format(phrases.turnleft) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                         console.log("Turn left and go forward") }
                     else if (direction[a-1] != undefined && direction[a-1] == "W") { 
-                        tempdesc = tempdesc + format(phrases.turnright) + " "
+                        tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                         console.log("Turn right and go forward") }
 
-                        if (cube) { tempdesc = tempdesc + format(phrases.goforwardc, this.info[[y, x-1]].name) + " " }
-                        else { tempdesc = tempdesc + format(phrases.goforward, Math.abs(_intersections[a][1] - currentpath[1])) + " "};
+                        if (cube) { tempdesc = tempdesc + format(this.getDirectionPhrase("goforwardc"), this.info[[y, x-1]].name) + " " }
+                        else { tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_intersections[a][1] - currentpath[1])) + " "};
                 } // lefter?
                 console.log(tempdesc)
             }
@@ -611,48 +626,48 @@ IsoMap = (function() {
                     if (currentpath[0] == _targetPoint[0] && currentpath[1] < _targetPoint[1]) {
                         console.log("righter, prevDirection: ", prevDirection)
                         if (prevDirection != undefined && prevDirection == "S") {  
-                            tempdesc = tempdesc + format(phrases.turnleft) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                             console.log("Turn left and go forward") }
                         else if (prevDirection != undefined && prevDirection == "N") {  
-                            tempdesc = tempdesc + format(phrases.turnright) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                             console.log("Turn right and go forward") }
                         else if (prevDirection != undefined && prevDirection == "E") {   
-                            tempdesc = tempdesc + format(phrases.turnleft) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                             console.log("Turn left and go forward") }
-                            tempdesc = tempdesc + format(phrases.goforward, Math.abs(_targetPoint[1] - currentpath[1])) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_targetPoint[1] - currentpath[1])) + " "
                     } //righter
                     else if (currentpath[0] == _targetPoint[0] && currentpath[1] > _targetPoint[1]) {
                         console.log("lefter, prevDirection: ", prevDirection)
                         if (prevDirection != undefined && prevDirection == "S") { 
-                            tempdesc = tempdesc + format(phrases.turnright) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                             console.log("Turn right and go forward") }
                         else if (prevDirection != undefined && prevDirection == "N") { 
-                            tempdesc = tempdesc + format(phrases.turnleft) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                             console.log("Turn left and go forward") }
                         else if (prevDirection != undefined && prevDirection == "W") { 
-                            tempdesc = tempdesc + format(phrases.turnright) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                             console.log("Turn right and go forward") }
-                            tempdesc = tempdesc + format(phrases.goforward, Math.abs(_targetPoint[1] - currentpath[1])) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_targetPoint[1] - currentpath[1])) + " "
                     } //lefter
                     else if (currentpath[0] > _targetPoint[0] && currentpath[1] == _targetPoint[1]) {
                         console.log("higher, prevDirection: ", prevDirection)
                         if (prevDirection != undefined && prevDirection == "W") { 
-                            tempdesc = tempdesc + format(phrases.turnleft) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                             console.log("Turn left and go forward") }
                         else if (prevDirection != undefined && prevDirection == "E") { 
-                            tempdesc = tempdesc + format(phrases.turnright) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                             console.log("Turn right and go forward") }
-                            tempdesc = tempdesc + format(phrases.goforward, Math.abs(_targetPoint[0] - currentpath[0])) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_targetPoint[0] - currentpath[0])) + " "
                     }   // higher                
                     else if (currentpath[0] < _targetPoint[0] && currentpath[1] == _targetPoint[1]) {
                         console.log("lower, prevDirection: ", prevDirection)
                         if (prevDirection != undefined && prevDirection == "W") { 
-                            tempdesc = tempdesc + format(phrases.turnright) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnright")) + " "
                             console.log("Turn right and go forward") }
                         else if (prevDirection != undefined && prevDirection == "E") { 
-                            tempdesc = tempdesc + format(phrases.turnleft) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("turnleft")) + " "
                             console.log("Turn left and go forward") }
-                            tempdesc = tempdesc + format(phrases.goforward, Math.abs(_targetPoint[0] - currentpath[0])) + " "
+                            tempdesc = tempdesc + format(this.getDirectionPhrase("goforward"), Math.abs(_targetPoint[0] - currentpath[0])) + " "
                     } //lower
                 }  
                 console.log(tempdesc)
