@@ -311,7 +311,7 @@ IsoMap = (function() {
         })
 
         IsoMap.prototype.speak = (e, e1) => {
-            responsiveVoice.speak(e, e1)
+            responsiveVoice.speak(e, (voice != undefined ? voice : "Deutsch Female"), {rate: (rate != undefined ? rate : 0.85)})
         }
         this.canvas.addEventListener('mousedown', function onMouseDown(event) {
             //console.log("ONMOUSEDOWN")
@@ -713,6 +713,7 @@ function getRandomInt(max) {
     game: {ntiles: Math.round((mapwidth*mapheight)/3)}
 }
 let maximum = 350
+let rate = 0.85
 let button =  document.createElement("button")
 let buttonrepeat = document.createElement("button")
 let buttonseetext = document.createElement("button")
@@ -724,6 +725,18 @@ p.id = "transcription"
 //let rangewidth = document.getElementById("myRangeWidth")
 //let rangetiles = document.getElementById("myRangeTiles")
 let container = document.createElement("div")
+let rangerate = document.createElement("INPUT")
+let rangeratep = document.createElement('p')
+rangerate.setAttribute("type", "range")
+rangerate.min = 0.01
+rangerate.step = 0.01
+rangerate.max = 1.0
+rangerate.value = rate
+rangeratep.innerHTML = "Sprechtempo: " + Math.round((rangerate.value*100)) + "%"
+rangerate.oninput = function() {
+    rate = rangerate.value
+    rangeratep.innerHTML = "Sprechtempo: " + Math.round((rangerate.value*100))+"%"
+}
 let rangetiles = document.createElement("INPUT")
 let rangetilesp = document.createElement('p')
 rangetiles.min = 1
@@ -785,6 +798,8 @@ rangewidth.oninput = function() {
 //container.appendChild(rangeheightp)
 container.appendChild(rangetiles)
 container.appendChild(rangetilesp)
+container.appendChild(rangerate)
+container.appendChild(rangeratep)
 //document.body.appendChild(rangeheight)
 console.log(rangewidth)
 
@@ -849,6 +864,8 @@ document.body.appendChild(buttonrepeat)
 document.body.appendChild(buttonseetext)
 document.body.appendChild(buttonhide)
 document.body.appendChild(buttonsettings)
+//let voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
+voice = "Deutsch Female"
 const start = () => {
     isoMap = new IsoMap(params)
     isoMap.matrix = []
@@ -876,6 +893,8 @@ isoMap.startingPoint = []
 isoMap.targetPoint = [] */
 }
 const init = () => {
+    //voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
+    voice = "Deutsch Female"
     console.log("lets go")
     console.log(params.game.ntiles)
     console.log(params.map.height)
