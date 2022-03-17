@@ -326,6 +326,7 @@ IsoMap = (function() {
             //console.log(isometricPosition)
            // //console.log(this.map[isometricPosition.y])
             if (event.button == 0) {
+                console.log(self.matrix)
                 if ( isOnMap(isometricPosition, self.map) && (self.matrix[isometricPosition.y][isometricPosition.x] != 1) ) {
                 //console.log("go")
                 console.log([isometricPosition.x, isometricPosition.y])
@@ -721,7 +722,7 @@ function getRandomInt(max) {
   }
 
   var synth = window.speechSynthesis;
-  let isoMap
+  var isoMap = undefined
   let mapwidth = 10
   let mapheight = 10
   let params = {
@@ -829,7 +830,16 @@ buttonhide.innerHTML = "Würfel ausblenden"
 buttonshowanswer.innerHTML = "Antwort zeigen"
 buttonsettings.innerHTML = "Einstellungen anzeigen"
 button.addEventListener("click", function() {
-    if (isoMap != undefined && isoMap.path != undefined) { isoMap.path = [] }
+    if (isoMap != undefined ) { 
+        isoMap.matrix = []
+        isoMap.info = []
+        isoMap.targetPoint = []
+        isoMap.startingPoint = []
+        isoMap.selected = []
+        isoMap.hidden = false
+        isoMap.areyousure = 0
+        isoMap.path = []
+     }
     if (isoMap != undefined && isoMap.context != undefined) { isoMap.context.clearRect(0, 0, isoMap.canvas.width, isoMap.canvas.height) }
     init()
 })
