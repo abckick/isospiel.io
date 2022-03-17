@@ -498,10 +498,13 @@ turnbackwards: ["Umkehren.", "Kehren Sie um.", "Rückwärts drehen.", "Drehen Si
 goforwardc: ["Gehen Sie nach vorne zum {0}en Würfel.", "Gehen Sie geradeaus zum {0}en Würfel.", "Gehen Sie vorwärts zum {0}en Würfel.", "Gehen Sie nach vorne, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie geradeaus, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie vorwärts, bis Sie auf einen {0}en Würfel treffen.", "Vorwärts zum {0}en Würfel gehen.", "Geradeaus zum {0}en Würfel gehen.", "Nach vorne zum {0}en Würfel gehen."]
 }
 if (dir != undefined) {
-    if (dir == "turnleft") { return phrases.turnleft[getRandomInt(phrases.turnleft.length)] }
-    else if (dir == "turnright") { return phrases.turnright[getRandomInt(phrases.turnright.length)] }
-    else if (dir == "goforward") { return phrases.goforward[getRandomInt(phrases.goforward.length)] }
-    else if (dir == "goforwardc") { return phrases.goforwardc[getRandomInt(phrases.goforwardc.length)] }
+    let returnphrase = ""
+    if (dir == "turnleft") { returnphrase = phrases.turnleft[getRandomInt(phrases.turnleft.length)] }
+    else if (dir == "turnright") { returnphrase = phrases.turnright[getRandomInt(phrases.turnright.length)] }
+    else if (dir == "goforward") { returnphrase = phrases.goforward[getRandomInt(phrases.goforward.length)] }
+    else if (dir == "goforwardc") { returnphrase = phrases.goforwardc[getRandomInt(phrases.goforwardc.length)] }
+    console.log(returnphrase)
+    return returnphrase
 }
     }
     IsoMap.prototype.describePath = function(path, _intersections, places, _targetPoint, _startingPoint) {
@@ -734,6 +737,7 @@ let buttonrepeat = document.createElement("button")
 let buttonseetext = document.createElement("button")
 let buttonhide = document.createElement("button")
 let buttonsettings = document.createElement("button")
+let buttonshowanswer = document.createElement("button")
 let p = document.createElement('p')
 p.id = "transcription"
 //let rangeheight = document.getElementById("myRangeHeight")
@@ -822,6 +826,7 @@ button.innerHTML = "Neu Spiel"
 buttonrepeat.innerHTML = "Die Anweisungen wiederholen"
 buttonseetext.innerHTML = "Transkription anzeigen"
 buttonhide.innerHTML = "Würfel ausblenden"
+buttonshowanswer.innerHTML = "Antwort zeigen"
 buttonsettings.innerHTML = "Einstellungen anzeigen"
 button.addEventListener("click", function() {
     if (isoMap != undefined && isoMap.path != undefined) { isoMap.path = [] }
@@ -874,10 +879,25 @@ buttonhide.addEventListener("click", function() {
         }
     }
 })
+buttonshowanswer.addEventListener("click", function() {
+    if (isoMap != undefined && isoMap.game === true) {
+        if (buttonshowanswer.innerHTML == "Antwort zeigen") {
+            if (isoMap.targetPoint != undefined && isoMap.targetPoint.length != undefined) {
+                isoMap.changeColor({x: targetPoint[1], y: targetPoint[0]}, {color: '#FF0000'})
+            }
+            buttonshowanswer.innerHTML = "Antwort ausblenden"
+        }
+        else if(buttonshowanswer.innerHTML == "Antwort ausblenden") {
+            isoMap.changeColor({x: targetPoint[1], y: targetPoint[0]}, {color: isoMap.color})
+            buttonshowanswer.innerHTML = "Antwort zeigen"
+        }
+    }
+})
 document.body.appendChild(button)
 document.body.appendChild(buttonrepeat)
 document.body.appendChild(buttonseetext)
 document.body.appendChild(buttonhide)
+document.body.appendChild(buttonshowanswer)
 document.body.appendChild(buttonsettings)
 //let voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
 voice = "Deutsch Female"
@@ -917,6 +937,7 @@ const init = () => {
     try { document.body.removeChild(p) } catch{}
     buttonseetext.innerHTML = "Transkription anzeigen"
     buttonhide.innerHTML = "Würfel ausblenden" 
+    buttonshowanswer.innerHTML = "Antwort zeigen"
     isoMap = new IsoMap(params)
     //console.log(isoMap)
     isoMap.create()
