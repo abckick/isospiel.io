@@ -1,3 +1,9 @@
+//import 'js/index.js'
+if (window.structuredClone === undefined) {
+    window.structuredClone = function (obj) {
+      return JSON.parse(JSON.stringify(obj))
+    }
+  }
 IsoMap = (function() {
 
     /**
@@ -60,8 +66,8 @@ IsoMap = (function() {
             this.matrix[a] = new Array(this.map.width).fill(0)
         }
         //this.info[[0,0]] = 0
-        console.log(this.matrix)
-       // console.log(this.info)
+        //console.log(this.matrix)
+       // //console.log(this.info)
         this.redrawTiles()
 
 
@@ -106,9 +112,9 @@ IsoMap = (function() {
          */
          let isopos = this.convertScreenToIsometric(x, y)
          if (this.selected[0]-1 == isopos.y && this.selected[1] == isopos.x) { 
-            //console.log("=")
-            //console.log(isopos.x, "+",isopos.y)
-            //console.log(this.selected[1], "+", this.selected[0])
+            ////console.log("=")
+            ////console.log(isopos.x, "+",isopos.y)
+            ////console.log(this.selected[1], "+", this.selected[0])
             //this.context.strokeStyle = "rgba(255, 0, 0, 1)"
             //this.context.lineWidth = 2
             if (this.areyousure == 0 || this.areyousure == 1) { this.context.fillStyle = "rgba(255, 255, 255, 1)" }
@@ -123,10 +129,10 @@ IsoMap = (function() {
         this.context.lineTo(x - tileWidth / 2,  y);
 
         // draw path
-        //console.log("selected: ", this.selected  )
-        //if (this.selected != null) console.log(this.selected)
-        //console.log([isopos.y, isopos.x])
-        //console.log([isopos.y, isopos.x], "!=", this.selected)
+        ////console.log("selected: ", this.selected  )
+        //if (this.selected != null) //console.log(this.selected)
+        ////console.log([isopos.y, isopos.x])
+        ////console.log([isopos.y, isopos.x], "!=", this.selected)
         //this.context.strokeStyle = "rgba(255,0,0,01)"
         //this.context.lineWidth = 2
         /*
@@ -139,7 +145,7 @@ IsoMap = (function() {
         //this.context.fillStyle = this.color;
         //if (_color != undefined) { this.context.fillStyle = _color }
         let debugColor = this.context.fillStyle
-        //if (isopos.x == 1 || isopos.x == 0) { console.log('point is ', isopos, ' and color is ', debugColor, ' although by info its ', (this.info ? this.info[[isopos.y, isopos.x]] : undefined), ' this.info is ', this.info) }
+        //if (isopos.x == 1 || isopos.x == 0) { //console.log('point is ', isopos, ' and color is ', debugColor, ' although by info its ', (this.info ? this.info[[isopos.y, isopos.x]] : undefined), ' this.info is ', this.info) }
         this.context.fill();
         this.context.fillStyle = 'orange'
         //if (isOnMap(isopos, this.map)) {
@@ -169,7 +175,7 @@ IsoMap = (function() {
             // Perform this check first:
             if (direction[i][0] == end[0] && direction[i][1] == end[1]) {
               // return the path that led to the find
-              console.log("RETURNING ", path.concat([end]))
+              //console.log("RETURNING ", path.concat([end]))
               return path.concat([end])
             }
       
@@ -308,20 +314,20 @@ IsoMap = (function() {
             responsiveVoice.speak(e, e1)
         }
         this.canvas.addEventListener('mousedown', function onMouseDown(event) {
-            console.log("ONMOUSEDOWN")
-            console.log(event)
-            console.log(self.game)
+            //console.log("ONMOUSEDOWN")
+            //console.log(event)
+            //console.log(self.game)
             let mousePosition = getMousePosition(event);
             let isometricPosition = self.convertScreenToIsometric(mousePosition.x, mousePosition.y);
             if (self.game == true) {
-                //console.log("pognai")
+                ////console.log("pognai")
             let mousePosition = getMousePosition(event);
             let isometricPosition = self.convertScreenToIsometric(mousePosition.x, mousePosition.y);
-            console.log(isometricPosition)
-           // console.log(this.map[isometricPosition.y])
+            //console.log(isometricPosition)
+           // //console.log(this.map[isometricPosition.y])
             if (event.button == 0) {
                 if ( isOnMap(isometricPosition, self.map) && (self.matrix[isometricPosition.y][isometricPosition.x] != 1) ) {
-                console.log("go")
+                //console.log("go")
                 console.log([isometricPosition.x, isometricPosition.y])
                 console.log(self.selected)
                 console.log(self.areyousure)
@@ -698,11 +704,13 @@ function getRandomInt(max) {
 
   var synth = window.speechSynthesis;
   let isoMap
+  let mapwidth = 10
+  let mapheight = 10
   let params = {
-    screen: { width: 1366, height: 768 },
     map: { width: 10, height: 10},
+    screen: { width: 1366 , height:768 },
     tile: { width: 64*2, height: 32*2 },
-    game: {ntiles: 50}
+    game: {ntiles: Math.round((mapwidth*mapheight)/3)}
 }
 let maximum = 350
 let button =  document.createElement("button")
@@ -715,19 +723,70 @@ p.id = "transcription"
 //let rangeheight = document.getElementById("myRangeHeight")
 //let rangewidth = document.getElementById("myRangeWidth")
 //let rangetiles = document.getElementById("myRangeTiles")
-let rangeheight = document.createElement("INPUT")
-let rangeheightp = document.createElement('p')
-rangeheight.setAttribute("type", "range")
-rangeheightp.innerHTML = "Höhe der Karte: " + params.map.height
-let rangewidth = document.createElement("INPUT")
-rangewidth.setAttribute("type", "range")
-let rangewidthp = document.createElement('p')
-rangewidthp.innerHTML = "Breite der Karte: " + params.map.width
+let container = document.createElement("div")
 let rangetiles = document.createElement("INPUT")
 let rangetilesp = document.createElement('p')
+rangetiles.min = 1
+rangetiles.value = params.game.ntiles
 rangetiles.setAttribute("type", "range")
+rangetiles.max = (params.map.width*params.map.height)*0.8
 rangetilesp.innerHTML = "Anzahl der Würfel: " + params.game.ntiles
+rangetiles.oninput = function() { 
+    let value = rangetiles.value; 
+    params.game.ntiles = value; 
+    rangetilesp.innerHTML = "Anzahl der Würfel: " + params.game.ntiles 
+}
+let rangeheight = document.createElement("INPUT")
+rangeheight.min = 1
+rangeheight.value = params.map.height
+let rangeheightp = document.createElement('p')
+rangeheight.setAttribute("type", "range")
+rangeheightp.innerHTML = "Größe der Karte: " + params.map.height
+rangeheight.oninput = function() { 
+    let value = rangeheight.value
+    params.map.height = value 
+    params.map.width = value
+    params.screen.width = 140*params.map.width
+    params.screen.height = 77*params.map.height
+    /*
+    rangetiles.max = params.map.height * params.map.width
+    if (rangetiles.value > rangetiles.max && rangetiles.value != rangetiles.min) {
+        rangetiles.value = rangetiles.max
+        params.game.ntiles = rangetiles.value 
+    }
+    rangetilesp.innerHTML = "Anzahl der Würfel: " + params.game.ntiles  */
+    rangeheightp.innerHTML = "Größe der Karte: " + params.map.height 
+}
+
+let rangewidth = document.createElement("INPUT")
+let rangewidthp = document.createElement('p')
+rangewidth.min = 1
+rangewidth.value = params.map.width
+rangewidth.setAttribute("type", "range")
+rangewidthp.innerHTML = "Breite der Karte: " + params.map.width
+rangewidth.max = (params.map.width*params.map.height)*0.8
+rangewidth.oninput = function() { 
+    let value = rangewidth.value; 
+    params.map.width = value;
+    /*
+    rangetiles.max = params.map.height * params.map.width
+    if (rangetiles.value > rangetiles.max && rangetiles.value != rangetiles.min) {
+        rangetiles.value = rangetiles.max
+       params.game.ntiles = rangetiles.value
+    }
+    rangetilesp.innerHTML = "Anzahl der Würfel: " + params.game.ntiles  */
+    rangewidthp.innerHTML = "Breite der Karte: " + params.map.width 
+}
+
+
+//container.appendChild(rangewidth)
+//container.appendChild(rangewidthp)
+//container.appendChild(rangeheight)
+//container.appendChild(rangeheightp)
+container.appendChild(rangetiles)
+container.appendChild(rangetilesp)
 //document.body.appendChild(rangeheight)
+console.log(rangewidth)
 
 button.innerHTML = "Neu Spiel"
 buttonrepeat.innerHTML = "Die Anweisungen wiederholen"
@@ -743,13 +802,12 @@ button.addEventListener("click", function() {
 buttonsettings.addEventListener("click", function() {
     if (params != undefined) {
         if (buttonsettings.innerHTML == "Einstellungen anzeigen") {
-            let br = document.createElement("br")
-            document.body.appendChild(br)
-            document.body.appendChild(rangeheight)
-            document.body.appendChild(rangeheightp)
+            //let br = document.createElement("br")
+            document.body.appendChild(container)
             buttonsettings.innerHTML = "Einstellungen schließen"
         }
         else if (buttonsettings.innerHTML == "Einstellungen schließen") {
+            document.body.removeChild(container)
             buttonsettings.innerHTML = "Einstellungen anzeigen"
         }
     }
@@ -790,7 +848,7 @@ document.body.appendChild(button)
 document.body.appendChild(buttonrepeat)
 document.body.appendChild(buttonseetext)
 document.body.appendChild(buttonhide)
-//document.body.appendChild(buttonsettings)
+document.body.appendChild(buttonsettings)
 const start = () => {
     isoMap = new IsoMap(params)
     isoMap.matrix = []
@@ -818,12 +876,15 @@ isoMap.startingPoint = []
 isoMap.targetPoint = [] */
 }
 const init = () => {
-    
+    console.log("lets go")
+    console.log(params.game.ntiles)
+    console.log(params.map.height)
+    console.log(params.map.width)
     try { document.body.removeChild(p) } catch{}
     buttonseetext.innerHTML = "Transkription anzeigen"
     buttonhide.innerHTML = "Würfel ausblenden" 
     isoMap = new IsoMap(params)
-    console.log(isoMap)
+    //console.log(isoMap)
     isoMap.create()
     isoMap.end = init
     isoMap.path = []
@@ -863,8 +924,8 @@ for ( let a = 0; a < params.game.ntiles; a++) {
     //console.log(randomcolor)
     let ro = colors[getRandomInt(colors.length)]
     let color = ro.color
-    console.log(ro)
-    console.log(randomx, randomy)
+    //console.log(ro)
+    //console.log(randomx, randomy)
     isoMap.changeColor({x: randomx, y:randomy}, ro)
     //isoMap.matrix[getRandomInt(isoMap.map.width)]
 }
@@ -879,15 +940,15 @@ do { startingPoint = [getRandomInt(isoMap.map.height), getRandomInt(isoMap.map.w
  ); 
  if (attempts > maximum) {
      console.log("TOO MANY ATTEMPTS")
-     params.game.ntiles = 20
+     params.game.ntiles = (params.game.ntiles*0.9)
      init()
  }
  else {
  isoMap.path = path
-console.log("target: ", targetPoint)
-console.log("starting: ", startingPoint)
-console.log('path.length: ', path.length)
-//console.log("way: ", isoMap.findWay(startingPoint, targetPoint, isoMap.matrixCopy))
+//console.log("target: ", targetPoint)
+//console.log("starting: ", startingPoint)
+//console.log('path.length: ', path.length)
+////console.log("way: ", isoMap.findWay(startingPoint, targetPoint, isoMap.matrixCopy))
 //let way = isoMap.findWay(startingPoint, targetPoint, isoMap.matrixCopy)
 isoMap.changeColor({x: startingPoint[1], y: startingPoint[0]}, {color: '#00FF00'})
 //isoMap.changeColor({x: targetPoint[1], y: targetPoint[0]}, {color: '#FF0000'})
@@ -896,28 +957,28 @@ isoMap.changeColor({x: startingPoint[1], y: startingPoint[0]}, {color: '#00FF00'
 //isoMap.redrawTiles()
 
 for (const point of path) {
-    console.log(point)
+    //console.log(point)
     if (point != targetPoint && point != startingPoint) {
         //isoMap.changeColor({x: point[1], y: point[0]}, {color: '#0000FF'})
     }
 } 
 //isoMap.redrawTiles()
 let places =isoMap.findInterestingPlaces(path, structuredClone(isoMap.matrix))
-//console.log(places)
+////console.log(places)
 for (const value of places.regularObjects) {
-    //console.log(value)
+    ////console.log(value)
     //isoMap.changeColor({x: value.x, y: value.y}, '#0296D9')
 }
 for (const value of places.diagonalObjects) {
-    //console.log('diagonal')
-    //console.log(value)
+    ////console.log('diagonal')
+    ////console.log(value)
     //isoMap.changeColor({x: value.x, y: value.y}, '#EC7B5A')
 }
 isoMap.redrawTiles()
-console.log()
+//console.log()
 let intersections = isoMap.findIntersections(path, structuredClone(isoMap.matrix))
 let description = isoMap.describePath(structuredClone(path), structuredClone(intersections), structuredClone(places), structuredClone(targetPoint), structuredClone(startingPoint))
-console.log(description)
+//console.log(description)
 isoMap.description = description
 isoMap.redrawTiles(true)
 let seta = false
