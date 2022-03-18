@@ -27,6 +27,10 @@ IsoMap = (function() {
         this.description = ""
         this.game = false
         this.end = () => {}
+        this.paused = false
+        this.phrasecount = 0
+        this.phrasedelay = 4500
+        this.timer = undefined
 
         // canvas area details
         this.screen = { 
@@ -262,7 +266,7 @@ IsoMap = (function() {
         //if (drawTiles == undefined) { drawTiles == false }
         for (i = 0; i < this.map.width; i++) {
             for (j = 0; j < this.map.height; j++) {
-                if (this.matrix[j][i] == 0 || (drawTiles == false || this.hidden == true)) {
+                if (this.matrix[j] != undefined && this.matrix[j][i] != undefined && this.matrix[j][i] == 0 || (drawTiles == false || this.hidden == true)) {
                     let x = (i-j) * this.tile.width / 2 + this.position.x;
                     let y = (i+j) * this.tile.height / 2 + this.position.y;
                 // calculate coordinates
@@ -297,26 +301,22 @@ IsoMap = (function() {
         }
         this.redrawTiles()
     }
-    IsoMap.prototype.addListeners = function() {
-        var self = this;
-        window.addEventListener('contextmenu', event => event.preventDefault())
-        document.addEventListener('keypress', function onKeyPress(event) {
-            let key = event.key
-            let code = event.code
-            if (key == 'W' || key == 'w') {
-                if (self.description != null && self.game == true) {
-                    responsiveVoice.speak(self.description, "Deutsch Female")
-                }
-            }
-        })
 
-        IsoMap.prototype.speak = (e, e1) => {
-            responsiveVoice.speak(e, (voice != undefined ? voice : "Deutsch Female"), {rate: (rate != undefined ? rate : 0.85)})
+
+    const keyboardListener = (event) => {
+        let key = event.key
+        let code = event.code
+        if (key == 'W' || key == 'w') {
+            if (self.description != null && self.game == true) {
+                responsiveVoice.speak(self.description, "Deutsch Female")
+            }
         }
-        this.canvas.addEventListener('mousedown', function onMouseDown(event) {
-            //console.log("ONMOUSEDOWN")
+    }
+    const mousedownListener = (event) => {
+                    //console.log("ONMOUSEDOWN")
             //console.log(event)
-            //console.log(self.game)
+            // console.log(self.game)
+            var self = isoMap
             let mousePosition = getMousePosition(event);
             let isometricPosition = self.convertScreenToIsometric(mousePosition.x, mousePosition.y);
             if (self.game == true) {
@@ -391,10 +391,62 @@ IsoMap = (function() {
                 }
                 self.redrawTiles()
             }  */
-
-        }, false);
-
     }
+
+    IsoMap.prototype.addListeners = function() {
+        var self = this;
+        this.canvas.addEventListener('mousedown', mousedownListener, false);
+        document.addEventListener('keypress', keyboardListener)
+    }
+
+    IsoMap.prototype.removeListeners = function() {
+        let self = this
+        window.removeEventListener('contextmenu', mousedownListener, false )
+        document.removeEventListener('keypress', keyboardListener)
+    }
+
+    const speakCallback = () => {
+        if (buttonpause != undefined && buttonpause.innerHTML != "undefined") {
+            buttonpause.innerHTML = "Audio anhalten"
+        }
+    }
+
+        IsoMap.prototype.speak = (e, e1, e2) => {
+            if (e2 != undefined && e2 == true) {
+                console.log("GO SPEAK")
+                let self = this
+                let callbacker = () => {
+                    console.log("callbacker called")
+                    if (result[isoMap.phrasecount] != undefined) {
+                        //while (isoMap.paused == true) { console.log("WAITING FOR END...")}
+                        responsiveVoice.speak(result[isoMap.phrasecount], voice) }
+                }
+                let func = () => {
+                    console.log("func called")
+                    console.log(isoMap.phrasecount)
+                    if (isoMap.phrasecount >= 0 && isoMap.phrasecount < result.length) {
+                        console.log("if")
+                        callbacker()
+                        isoMap.phrasecount++
+                        buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+                        isoMap.timer = setTimeout(func, isoMap.phrasedelay)  
+                    }
+                    else {
+                        console.log("else")
+                        isoMap.phrasecount = 0
+                    }
+                }
+                isoMap.timer = setTimeout(() => {
+                    func()
+
+                }, this.phrasedelay)
+            }
+            else { 
+                responsiveVoice.speak(e, (voice != undefined ? voice : "Deutsch Female"), {rate: (rate != undefined ? rate : 0.85), onend: speakCallback})
+            }
+        }
+
+        
     
     const shadeColor = (color, percent) => {
 
@@ -491,12 +543,18 @@ IsoMap = (function() {
     };
 
     IsoMap.prototype.getDirectionPhrase = function(dir) {
-        let phrases = {turnleft: ["Links abbiegen.", "Biegen Sie links ab.", "Drehen Sie sich nach links.", "Drehen Sie sich auf links.", "Nach links abbiegen.", "Abbiegung nach links.", "Linkskurve.", "Links."],
-    turnright:["Rechts abbiegen.", "Biegen Sie recht ab.", "Drehen Sie sich nach rechts.", "Drehen Sie sich auf rechts.", "Nach rechts abbiegen.", "Abbiegung nach rechts.", "Rechtskurve.", "Rechts."],
-turnbackwards: ["Umkehren.", "Kehren Sie um.", "Rückwärts drehen.", "Drehen Sie um.", "Umdrehen.", "Drehen Sie zurück.", "Drehen Sie um.", "Kehren Sie zurück.", "Zurückdrehen.", "Zurückkehren.", "Kehrtmachen."],
- goforward: ["Gehen Sie {0} Zellen weiter.", "Gehen Sie {0} Zellen vorwärts.", "{0} Zellen weiter gehen.", "{0} Zellen vorwärts gehen.", "{0} Zellen nach vorne gehen.", "Machen Sie {0} Schritte vorwärts.", "Gehen Sie {0} Schritte vorwärts.", "Machen Sie {0} Schritte nach vorne.", "Gehen Sie {0} Schritte nach vorne.",
- "{0} Schritte vorwärts machen.", "{0} Schritte geradeaus gehen.", "{0} Schritte geradeaus machen.", "{0} Schritte vorwärts gehen.", "{0} Schritte nach vorne machen.", "Gehen Sie {0} Mal vorwärts.", "Gehen Sie {0} Mal nach vorne.", "Gehen Sie {0} Mal weiter.", "{0} Mal nach vorne gehen.", "{0} Mal vorwärts gehen.", "{0} Mal weiter gehen.", "Machen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte geradeaus."],
-goforwardc: ["Gehen Sie nach vorne zum {0}en Würfel.", "Gehen Sie geradeaus zum {0}en Würfel.", "Gehen Sie vorwärts zum {0}en Würfel.", "Gehen Sie nach vorne, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie geradeaus, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie vorwärts, bis Sie auf einen {0}en Würfel treffen.", "Vorwärts zum {0}en Würfel gehen.", "Geradeaus zum {0}en Würfel gehen.", "Nach vorne zum {0}en Würfel gehen."]
+        let phrases = {
+            turnleft: ["Biegen Sie links ab.", "Biegen Sie links ab."],
+            turnright: ["Biegen Sie rechts ab.", "Biegen Sie rechts ab."],
+            turnbackwards: ["Kehren Sie um."],
+            goforward: ["Gehen Sie {0} Zellen weiter.", "Gehen Sie {0} Zellen geradeaus."],
+            goforwardc: ["Gehen Sie geradeaus zum {0}en Würfel.", "Gehen Sie weiter, bis Sie auf einen {0}en Würfel treffen."]
+            //turnleft: ["Links abbiegen.", "Biegen Sie links ab.", "Drehen Sie sich nach links.", "Drehen Sie sich auf links.", "Nach links abbiegen.", "Abbiegung nach links.", "Linkskurve.", "Links."],
+    //turnright:["Rechts abbiegen.", "Biegen Sie recht ab.", "Drehen Sie sich nach rechts.", "Drehen Sie sich auf rechts.", "Nach rechts abbiegen.", "Abbiegung nach rechts.", "Rechtskurve.", "Rechts."],
+//turnbackwards: ["Umkehren.", "Kehren Sie um.", "Rückwärts drehen.", "Drehen Sie um.", "Umdrehen.", "Drehen Sie zurück.", "Drehen Sie um.", "Kehren Sie zurück.", "Zurückdrehen.", "Zurückkehren.", "Kehrtmachen."],
+ //goforward: ["Gehen Sie {0} Zellen weiter.", "Gehen Sie {0} Zellen vorwärts.", "{0} Zellen weiter gehen.", "{0} Zellen vorwärts gehen.", "{0} Zellen nach vorne gehen.", "Machen Sie {0} Schritte vorwärts.", "Gehen Sie {0} Schritte vorwärts.", "Machen Sie {0} Schritte nach vorne.", "Gehen Sie {0} Schritte nach vorne.",
+ //"{0} Schritte vorwärts machen.", "{0} Schritte geradeaus gehen.", "{0} Schritte geradeaus machen.", "{0} Schritte vorwärts gehen.", "{0} Schritte nach vorne machen.", "Gehen Sie {0} Mal vorwärts.", "Gehen Sie {0} Mal nach vorne.", "Gehen Sie {0} Mal weiter.", "{0} Mal nach vorne gehen.", "{0} Mal vorwärts gehen.", "{0} Mal weiter gehen.", "Machen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte weiter.", "Gehen Sie {0} Schritte geradeaus."],
+//goforwardc: ["Gehen Sie nach vorne zum {0}en Würfel.", "Gehen Sie geradeaus zum {0}en Würfel.", "Gehen Sie vorwärts zum {0}en Würfel.", "Gehen Sie nach vorne, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie geradeaus, bis Sie auf einen {0}en Würfel treffen.", "Gehen Sie vorwärts, bis Sie auf einen {0}en Würfel treffen.", "Vorwärts zum {0}en Würfel gehen.", "Geradeaus zum {0}en Würfel gehen.", "Nach vorne zum {0}en Würfel gehen."]
 }
 if (dir != undefined) {
     let returnphrase = ""
@@ -516,8 +574,13 @@ if (dir != undefined) {
             /*
             let phrases = ["turnleft"="Drehen Sie sich nach links.", "turnright"="Drehen Sie sich nach rechts.", "turnbackwards"="Kehren Sie um.",
         "goforward"="Gehen Sie {0} Zellen weiter.", "goforwardc"="Gehen Sie nach vorne zum {0}en Würfel."] */
-        let phrases = {turnleft: "Drehen Sie sich nach links.", turnright: "Drehen Sie sich nach rechts.", turnbackwards: "Kehren Sie um.",
-    goforward: "Gehen Sie {0} Zellen weiter.", goforwardc: "Gehen Sie nach vorne zum {0}en Würfel."}
+        let phrases = {
+            turnleft: "Drehen Sie sich nach links.", 
+            turnright: "Drehen Sie sich nach rechts.", 
+            turnbackwards: "Kehren Sie um.",
+    goforward: "Gehen Sie {0} Zellen weiter.",
+     goforwardc: "Gehen Sie nach vorne zum {0}en Würfel."
+    }
             let currentpath = path[0]
             let direction = []
             let tempdesc = ""
@@ -732,13 +795,22 @@ function getRandomInt(max) {
     game: {ntiles: Math.round((mapwidth*mapheight)/3)}
 }
 let maximum = 350
-let rate = 0.85
+let rate = 1
 let button =  document.createElement("button")
 let buttonrepeat = document.createElement("button")
 let buttonseetext = document.createElement("button")
 let buttonhide = document.createElement("button")
 let buttonsettings = document.createElement("button")
 let buttonshowanswer = document.createElement("button")
+let buttonpause = document.createElement("button")
+let buttongoleft = document.createElement("button")
+buttongoleft.id = "buttonleft"
+buttongoleft.innerHTML = "<<"
+let buttongoright = document.createElement("button")
+buttongoright.id = "buttonright"
+buttongoright.innerHTML = ">>"
+let buttongocentre = document.createElement("button")
+buttongocentre.id = "buttoncentre"
 let p = document.createElement('p')
 p.id = "transcription"
 //let rangeheight = document.getElementById("myRangeHeight")
@@ -829,6 +901,21 @@ buttonseetext.innerHTML = "Transkription anzeigen"
 buttonhide.innerHTML = "Würfel ausblenden"
 buttonshowanswer.innerHTML = "Antwort zeigen"
 buttonsettings.innerHTML = "Einstellungen anzeigen"
+buttonpause.innerHTML = "Audio anhalten"
+buttongocentre.innerHTML = "Schritte wiederholen"
+buttonpause.addEventListener("click", function() {
+    if (buttonpause.innerHTML == "Audio anhalten" && responsiveVoice.isPlaying()) {
+        //buttonpause.innerHTML = "Audio fortsetzen"
+        responsiveVoice.cancel()
+        //isoMap.paused = true
+        clearTimeout(isoMap.timer)
+    }
+    else if (buttonpause.innerHTML == "Audio fortsetzen" ) {
+        buttonpause.innerHTML = "Audio anhalten"
+        responsiveVoice.resume()
+        isoMap.paused = false
+    }
+})
 button.addEventListener("click", function() {
     if (isoMap != undefined ) { 
         isoMap.matrix = []
@@ -839,6 +926,16 @@ button.addEventListener("click", function() {
         isoMap.hidden = false
         isoMap.areyousure = 0
         isoMap.path = []
+        isoMap.description = ""
+        isoMap.screen = undefined
+        isoMap.map = undefined
+        isoMap.tile = undefined
+        isoMap.position = undefined
+        isoMap.phrasecount = 0
+        // clear timer
+        clearTimeout(isoMap.timer)
+        isoMap.timer = undefined
+        isoMap.removeListeners()
      }
     if (isoMap != undefined && isoMap.context != undefined) { isoMap.context.clearRect(0, 0, isoMap.canvas.width, isoMap.canvas.height) }
     init()
@@ -859,7 +956,9 @@ buttonsettings.addEventListener("click", function() {
 })
 buttonrepeat.addEventListener("click", function() {
     if (isoMap != undefined && isoMap.description != "" && isoMap.description != undefined) {
-        isoMap.speak(isoMap.description, "Deutsch Female")
+        clearTimeout(isoMap.timer)
+        isoMap.phrasecount = 0
+        isoMap.speak(isoMap.description, "Deutsch Female", true)
     }
 })
 buttonseetext.addEventListener("click", function() {
@@ -903,12 +1002,40 @@ buttonshowanswer.addEventListener("click", function() {
         }
     }
 })
+buttongocentre.addEventListener("click", function() {
+    clearTimeout(isoMap.timer)
+    responsiveVoice.cancel()
+    let newvalue = isoMap.phrasecount - 1
+    if (newvalue >= 0 && newvalue < result.length) {
+        isoMap.speak(result[newvalue], "Deutsch Female")
+    }
+})
+buttongoright.addEventListener("click", function() {
+    clearTimeout(isoMap.timer)
+    if (isoMap.phrasecount + 1 <= result.length) { isoMap.phrasecount++}
+    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+})
+buttongoleft.addEventListener("click", function() {
+    clearTimeout(isoMap.timer)
+    let newvalue = isoMap.phrasecount - 1
+    if (newvalue >= 1) {
+        isoMap.phrasecount = newvalue
+    }
+    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+})
 document.body.appendChild(button)
 document.body.appendChild(buttonrepeat)
 document.body.appendChild(buttonseetext)
 document.body.appendChild(buttonhide)
 document.body.appendChild(buttonshowanswer)
 document.body.appendChild(buttonsettings)
+document.body.appendChild(buttonpause)
+// left
+document.body.appendChild(buttongoleft)
+document.body.appendChild(buttongocentre)
+document.body.appendChild(buttongoright)
+// right
+window.addEventListener('contextmenu', event => event.preventDefault())
 //let voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
 voice = "Deutsch Female"
 const start = () => {
@@ -937,7 +1064,9 @@ isoMap.info = []
 isoMap.startingPoint = []
 isoMap.targetPoint = [] */
 }
+let result = []
 const init = () => {
+    responsiveVoice.cancel()
     //voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
     voice = "Deutsch Female"
     console.log("lets go")
@@ -948,6 +1077,7 @@ const init = () => {
     buttonseetext.innerHTML = "Transkription anzeigen"
     buttonhide.innerHTML = "Würfel ausblenden" 
     buttonshowanswer.innerHTML = "Antwort zeigen"
+    buttonpause.innerHTML = "Audio anhalten"
     isoMap = new IsoMap(params)
     //console.log(isoMap)
     isoMap.create()
@@ -978,7 +1108,6 @@ let colorsdict = []
 //startingPoint = [0,0]
 let distance = 0
 let path = []
-
 
 for ( let a = 0; a < params.game.ntiles; a++) {
     let randomy = getRandomInt(isoMap.map.height)
@@ -1045,9 +1174,14 @@ let intersections = isoMap.findIntersections(path, structuredClone(isoMap.matrix
 let description = isoMap.describePath(structuredClone(path), structuredClone(intersections), structuredClone(places), structuredClone(targetPoint), structuredClone(startingPoint))
 //console.log(description)
 isoMap.description = description
+console.log("Description: ", description)
+result = description.match( /[^\.!\?]+[\.!\?]+/g )
+//isoMap.phrasecount = result.length
+//if (result != undefined) { i }
+console.log("Result:", result)
 isoMap.redrawTiles(true)
 let seta = false
-isoMap.speak(description, "Deutsch Female")
+isoMap.speak(description, "Deutsch Female", true)
 let suck1 = (e) => { isoMap.redrawTiles(e); if (!seta) {setTimeout(suck1, 4.5*1000, !e); seta = true; isoMap.game = true } }
 setTimeout(suck1, 1.5*1000, false)
  }
