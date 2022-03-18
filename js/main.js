@@ -817,6 +817,7 @@ p.id = "transcription"
 //let rangewidth = document.getElementById("myRangeWidth")
 //let rangetiles = document.getElementById("myRangeTiles")
 let container = document.createElement("div")
+let container2 = document.createElement("div")
 let rangerate = document.createElement("INPUT")
 let rangeratep = document.createElement('p')
 rangerate.setAttribute("type", "range")
@@ -851,8 +852,8 @@ rangeheight.oninput = function() {
     let value = rangeheight.value
     params.map.height = value 
     params.map.width = value
-    params.screen.width = 140*params.map.width
-    params.screen.height = 77*params.map.height
+    //params.screen.width = params.tile.width*params.map.width
+    //params.screen.height = params.tile.height*params.map.height
     /*
     rangetiles.max = params.map.height * params.map.width
     if (rangetiles.value > rangetiles.max && rangetiles.value != rangetiles.min) {
@@ -1023,6 +1024,9 @@ buttongoleft.addEventListener("click", function() {
     }
     buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
 })
+container2.appendChild(buttongoleft)
+container2.appendChild(buttongocentre)
+container2.appendChild(buttongoright)
 document.body.appendChild(button)
 document.body.appendChild(buttonrepeat)
 document.body.appendChild(buttonseetext)
@@ -1031,9 +1035,10 @@ document.body.appendChild(buttonshowanswer)
 document.body.appendChild(buttonsettings)
 document.body.appendChild(buttonpause)
 // left
-document.body.appendChild(buttongoleft)
-document.body.appendChild(buttongocentre)
-document.body.appendChild(buttongoright)
+//document.body.appendChild(buttongoleft)
+//document.body.appendChild(buttongocentre)
+//document.body.appendChild(buttongoright)
+document.body.appendChild(container2)
 // right
 window.addEventListener('contextmenu', event => event.preventDefault())
 //let voice = (getRandomInt(2) == 0 ? "Deutsch Female": "Deutsch Male")
