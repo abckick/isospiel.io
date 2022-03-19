@@ -428,7 +428,7 @@ IsoMap = (function() {
                         console.log("if")
                         callbacker()
                         isoMap.phrasecount++
-                        buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+                        buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte"
                         isoMap.timer = setTimeout(func, isoMap.phrasedelay)  
                     }
                     else {
@@ -903,7 +903,7 @@ buttonhide.innerHTML = "Würfel ausblenden"
 buttonshowanswer.innerHTML = "Antwort zeigen"
 buttonsettings.innerHTML = "Einstellungen anzeigen"
 buttonpause.innerHTML = "Audio anhalten"
-buttongocentre.innerHTML = "Schritte wiederholen"
+buttongocentre.innerHTML = "Schritte"
 buttonpause.addEventListener("click", function() {
     if (buttonpause.innerHTML == "Audio anhalten" && responsiveVoice.isPlaying()) {
         //buttonpause.innerHTML = "Audio fortsetzen"
@@ -1017,7 +1017,7 @@ buttongoright.addEventListener("click", function() {
     if (isoMap != undefined) {
     clearTimeout(isoMap.timer)
     if (isoMap.phrasecount + 1 <= result.length) { isoMap.phrasecount++}
-    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte"
     }
 })
 buttongoleft.addEventListener("click", function() {
@@ -1027,7 +1027,7 @@ buttongoleft.addEventListener("click", function() {
     if (newvalue >= 1) {
         isoMap.phrasecount = newvalue
     }
-    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen" 
+    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte" 
 }
 })
 container2.appendChild(buttongoleft)
