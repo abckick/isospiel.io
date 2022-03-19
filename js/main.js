@@ -559,6 +559,7 @@ IsoMap = (function() {
 if (dir != undefined) {
     let returnphrase = ""
     if (dir == "turnleft") { returnphrase = phrases.turnleft[getRandomInt(phrases.turnleft.length)] }
+    else if (dir == "turnbackwards") { returnphrase = phrases.turnbackwards[getRandomInt(phrases.turnbackwards.length)] }
     else if (dir == "turnright") { returnphrase = phrases.turnright[getRandomInt(phrases.turnright.length)] }
     else if (dir == "goforward") { returnphrase = phrases.goforward[getRandomInt(phrases.goforward.length)] }
     else if (dir == "goforwardc") { returnphrase = phrases.goforwardc[getRandomInt(phrases.goforwardc.length)] }
@@ -599,8 +600,9 @@ if (dir != undefined) {
                 //console.log(this.matrix[y-1][x])
                 if ( currentpath[0] < _intersections[a][0] && currentpath[1] == _intersections[a][1] ) {
                     direction[a] = "S"
+                    console.log("YOU NEED TO GO LOWER! S")
                     if (this.matrix[y+1] != undefined && this.matrix[y+1][x] == 1) cube = true
-                    if (direction[a-1] == undefined) { 
+                    if (a == 0) { 
                         tempdesc = tempdesc + format(this.getDirectionPhrase("turnbackwards")) + " "
                     }
                     else if (direction[a-1] != undefined && direction[a-1] == "W") { 
@@ -792,7 +794,7 @@ function getRandomInt(max) {
     map: { width: 10, height: 10},
     screen: { width: 1366 , height:768 },
     tile: { width: 64*2, height: 32*2 },
-    game: {ntiles: Math.round((mapwidth*mapheight)/3)}
+    game: {ntiles: Math.floor((mapwidth*mapheight)/3)}
 }
 let maximum = 350
 let rate = 1
