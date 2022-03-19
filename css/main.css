@@ -24,6 +24,7 @@ button {
   overflow: hidden;
   padding: 9px 20px 8px;
   margin-left: 50px;
+  margin-top: 50px;
   position: relative;
   text-align: center;
   text-transform: none;
@@ -54,4 +55,16 @@ body {
     text-transform: uppercase;
     font-family: "Farfetch Basis","Helvetica Neue",Arial,sans-serif;
     font-size: 20px;
+  }
+
+  #buttonleft {
+    max-width: 40px;
+  }
+  #buttoncentre {
+    margin-left: 0px;
+  }
+
+  #buttonright {
+    margin-left: 0px;
+    max-width: 40px;
   }
