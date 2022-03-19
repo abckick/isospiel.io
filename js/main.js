@@ -1004,25 +1004,31 @@ buttonshowanswer.addEventListener("click", function() {
     }
 })
 buttongocentre.addEventListener("click", function() {
+    if (isoMap != undefined) {
     clearTimeout(isoMap.timer)
     responsiveVoice.cancel()
     let newvalue = isoMap.phrasecount - 1
     if (newvalue >= 0 && newvalue < result.length) {
         isoMap.speak(result[newvalue], "Deutsch Female")
     }
+}
 })
 buttongoright.addEventListener("click", function() {
+    if (isoMap != undefined) {
     clearTimeout(isoMap.timer)
     if (isoMap.phrasecount + 1 <= result.length) { isoMap.phrasecount++}
     buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+    }
 })
 buttongoleft.addEventListener("click", function() {
+    if (isoMap != undefined) {
     clearTimeout(isoMap.timer)
     let newvalue = isoMap.phrasecount - 1
     if (newvalue >= 1) {
         isoMap.phrasecount = newvalue
     }
-    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen"
+    buttongocentre.innerHTML = isoMap.phrasecount + ". Schritte wiederholen" 
+}
 })
 container2.appendChild(buttongoleft)
 container2.appendChild(buttongocentre)
