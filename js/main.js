@@ -288,6 +288,8 @@ IsoMap = (function() {
             }
             }
         }
+        //this.canvasDrawArrow(this.context, 200, 200, 400, 400)
+        //console.log(this.canvas.height)
     }
     /**
      * @desc init map listeners
@@ -338,9 +340,13 @@ IsoMap = (function() {
                 //this.hidden = false
                 self.redrawTiles(true)
                 if (self.areyousure == 2) { 
-                    
+                    if (isoMap != undefined) {
+                        clearTimeout(isoMap.timer)
+                        responsiveVoice.cancel() 
+                    }
                     self.speak('Sind Sie sicher?', "Deutsch Female") }
                     self.redrawTiles(true)
+                    //self.areyousure--
                 if (self.areyousure == 3) {
                     if (targetPoint[0] == self.selected[0] && targetPoint[1] == self.selected[1]) {
                         
@@ -786,16 +792,47 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
 
+let refreshParams = function() {
+params.screen.width = (params.map.width*(params.tile.width+12))
+params.screen.height = (params.map.height*(params.tile.height+12))
+params.game.ntiles = Math.floor((mapwidth*mapheight)/3)
+}
+let refreshGame = function() {
+    if (isoMap != undefined ) { 
+        isoMap.matrix = []
+        isoMap.info = []
+        isoMap.targetPoint = []
+        isoMap.startingPoint = []
+        isoMap.selected = []
+        isoMap.hidden = false
+        isoMap.areyousure = 0
+        isoMap.path = []
+        isoMap.description = ""
+        isoMap.screen = undefined
+        isoMap.map = undefined
+        isoMap.tile = undefined
+        isoMap.position = undefined
+        isoMap.phrasecount = 0
+        // clear timer
+        clearTimeout(isoMap.timer)
+        isoMap.timer = undefined
+        isoMap.removeListeners()
+        isoMap.context.clearRect(0, 0, isoMap.canvas.width, isoMap.canvas.height) 
+     }
+}
+
+
   var synth = window.speechSynthesis;
   var isoMap = undefined
-  let mapwidth = 10
-  let mapheight = 10
+  let mapwidth = 7
+  let mapheight = 7
   let params = {
-    map: { width: 10, height: 10},
+    map: { width: 14, height:14},
     screen: { width: 1366 , height:768 },
     tile: { width: 64*2, height: 32*2 },
-    game: {ntiles: Math.floor((mapwidth*mapheight)/3)}
+    game: {ntiles: 0}
 }
+refreshParams()
 let maximum = 350
 let rate = 1
 let button =  document.createElement("button")
@@ -920,27 +957,7 @@ buttonpause.addEventListener("click", function() {
     }
 })
 button.addEventListener("click", function() {
-    if (isoMap != undefined ) { 
-        isoMap.matrix = []
-        isoMap.info = []
-        isoMap.targetPoint = []
-        isoMap.startingPoint = []
-        isoMap.selected = []
-        isoMap.hidden = false
-        isoMap.areyousure = 0
-        isoMap.path = []
-        isoMap.description = ""
-        isoMap.screen = undefined
-        isoMap.map = undefined
-        isoMap.tile = undefined
-        isoMap.position = undefined
-        isoMap.phrasecount = 0
-        // clear timer
-        clearTimeout(isoMap.timer)
-        isoMap.timer = undefined
-        isoMap.removeListeners()
-     }
-    if (isoMap != undefined && isoMap.context != undefined) { isoMap.context.clearRect(0, 0, isoMap.canvas.width, isoMap.canvas.height) }
+    refreshGame()
     init()
 })
 
