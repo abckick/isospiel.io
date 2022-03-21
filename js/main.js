@@ -29,7 +29,7 @@ IsoMap = (function() {
         this.end = () => {}
         this.paused = false
         this.phrasecount = 0
-        this.phrasedelay = 4500
+        this.phrasedelay = 5500
         this.timer = undefined
 
         // canvas area details
@@ -128,7 +128,10 @@ IsoMap = (function() {
          this.info[[y, x]] ? (this.context.fillStyle = this.info[[y,x]].color) : (_color ? this.context.fillStyle = _color : this.context.fillStyle = this.color)
         }
         this.context.lineTo(x - tileWidth, y + tileHeight / 2);
+        //this.context.lineWidth = 10
         this.context.lineTo(x - tileWidth / 2, y + tileHeight);
+        //this.context.stroke()
+        //this.context.lineWidth = 1
         this.context.lineTo(x, y + tileHeight / 2);
         this.context.lineTo(x - tileWidth / 2,  y);
 
@@ -340,7 +343,7 @@ IsoMap = (function() {
                 //this.hidden = false
                 self.redrawTiles(true)
                 if (self.areyousure == 2) { 
-                    if (isoMap != undefined) {
+                    if (isoMap) {
                         clearTimeout(isoMap.timer)
                         responsiveVoice.cancel() 
                     }
@@ -795,29 +798,43 @@ function getRandomInt(max) {
 let refreshParams = function() {
 params.screen.width = (params.map.width*(params.tile.width+12))
 params.screen.height = (params.map.height*(params.tile.height+12))
-params.game.ntiles = Math.floor((mapwidth*mapheight)/3)
+params.game.ntiles = Math.floor((params.map.width*params.map.height)/3)
 }
 let refreshGame = function() {
+    try {
+        clearTimeout(timah)
+        clearTimeout(timah2)
+        clearTimeout(timah3)
+    } catch{}
     if (isoMap != undefined ) { 
-        isoMap.matrix = []
-        isoMap.info = []
-        isoMap.targetPoint = []
-        isoMap.startingPoint = []
-        isoMap.selected = []
-        isoMap.hidden = false
-        isoMap.areyousure = 0
-        isoMap.path = []
-        isoMap.description = ""
+        isoMap.matrix = undefined
+        isoMap.info = undefined
+        isoMap.targetPoint = undefined
+        isoMap.startingPoint = undefined
+        isoMap.selected = undefined
+        isoMap.hidden = undefined
+        isoMap.areyousure = undefined
+        isoMap.path = undefined
+        isoMap.description = undefined
         isoMap.screen = undefined
         isoMap.map = undefined
         isoMap.tile = undefined
         isoMap.position = undefined
-        isoMap.phrasecount = 0
+        isoMap.phrasecount = undefined
         // clear timer
         clearTimeout(isoMap.timer)
         isoMap.timer = undefined
         isoMap.removeListeners()
         isoMap.context.clearRect(0, 0, isoMap.canvas.width, isoMap.canvas.height) 
+        isoMap.canvas = undefined
+        isoMap.context = undefined
+        isoMap.debug = undefined
+        isoMap.game = undefined
+        isoMap.end = undefined
+        isoMap.screen = undefined
+        isoMap.map = undefined
+        isoMap.tile = undefined
+        isoMap.position = undefined
      }
 }
 
@@ -827,12 +844,16 @@ let refreshGame = function() {
   let mapwidth = 7
   let mapheight = 7
   let params = {
-    map: { width: 14, height:14},
+    map: { width: 10, height:10},
     screen: { width: 1366 , height:768 },
     tile: { width: 64*2, height: 32*2 },
     game: {ntiles: 0}
 }
 refreshParams()
+let newgame = false
+let timah = undefined
+let timah2 = undefined
+let timah3 = undefined
 let maximum = 350
 let rate = 1
 let button =  document.createElement("button")
@@ -932,6 +953,8 @@ container.appendChild(rangetiles)
 container.appendChild(rangetilesp)
 container.appendChild(rangerate)
 container.appendChild(rangeratep)
+//container.appendChild(rangeheight)
+//container.appendChild(rangeheightp)
 //document.body.appendChild(rangeheight)
 console.log(rangewidth)
 
@@ -957,6 +980,7 @@ buttonpause.addEventListener("click", function() {
     }
 })
 button.addEventListener("click", function() {
+    refreshParams()
     refreshGame()
     init()
 })
@@ -1164,7 +1188,7 @@ do { startingPoint = [getRandomInt(isoMap.map.height), getRandomInt(isoMap.map.w
  ); 
  if (attempts > maximum) {
      console.log("TOO MANY ATTEMPTS")
-     params.game.ntiles = (params.game.ntiles*0.9)
+     params.game.ntiles = Math.floor((params.game.ntiles*0.9))
      init()
  }
  else {
@@ -1211,10 +1235,53 @@ result = description.match( /[^\.!\?]+[\.!\?]+/g )
 console.log("Result:", result)
 isoMap.redrawTiles(true)
 let seta = false
-isoMap.speak(description, "Deutsch Female", true)
-let suck1 = (e) => { isoMap.redrawTiles(e); if (!seta) {setTimeout(suck1, 4.5*1000, !e); seta = true; isoMap.game = true } }
-setTimeout(suck1, 1.5*1000, false)
+let oldinfo = structuredClone(isoMap.info)
+//isoMap.speak(description, "Deutsch Female", true)
+let suck1 = (e) => { 
+    isoMap.redrawTiles(e);
+
+    if (!seta) {
+        timah2 = setTimeout(suck1, 4.5*1000, !e); 
+        seta = true; 
+        isoMap.game = true }
+    else {
+        isoMap.speak(description, "Deutsch Female", true)
+    } }
+let startingfunc = () => {
+    console.log("startingfunc")
+    if (newgame == false) {
+        let phrases = ["Hören Sie sich die Wegbeschreibung an, um Ihr Ziel zu erreichen.", 
+        "Sie können zu jedem Schritt zurückgehen."]
+        let index = 0
+        console.log(phrases)
+        //let playnext = (i) => { if (phrases[i] != undefined) { console.log("sprechen)"); responsiveVoice.speak(phrases[i], "Deutsch Female", {onend: playnext(i+1)}) } 
+        //playnext(index)
+        //responsiveVoice.speak("", "Deutsch Female")
+        responsiveVoice.speak("Hören Sie sich die Wegbeschreibung an, um Ihr Ziel zu erreichen. Sie können zu jedem Schritt zurückgehen. Die grüne Zelle ist Ihr Startpunkt. Sie müssen den Endpunkt wählen, nachdem Sie die Wegbeschreibung gehört haben.", "Deutsch Female")
+        //isoMap.info = [[startingPoint[0], startingPoint[1]]]
+        isoMap.info = []
+        isoMap.changeColor({x: startingPoint[1], y: startingPoint[0]}, {color: '#00FF00'})
+        isoMap.redrawTiles(false)
+        timah3 = setTimeout(() => {
+            //responsiveVoice.cancel()
+            //responsiveVoice.speak("Die grüne Zelle ist Ihr Startpunkt. Sie müssen den Endpunkt wählen, nachdem Sie die Wegbeschreibung gehört haben.", "Deutsch Female")
+            timah = setTimeout(() => {newgame = true; isoMap.info = oldinfo; suck1(false); }, 10*1000, false)
+        }, 10*1000)
+        //{onend: console.log("onend")}
+        //responsiveVoice.speak(phrases[index], "Deutsch Female", {onend: () => {index++; playnext(index)}})
+    } 
+    else {
+        timah =setTimeout(suck1, 1.5*1000, false)
+    }
+    }
+    startingfunc()
+
+    }
+/*
+
+setTimeout(suck1, 1.5*1000, false) */
  }
+//}
 
 //setTimeout(suck1, 1500, true)
 //isoMap.drawPrism({ x: 5, y: 5});
@@ -1229,7 +1296,7 @@ setTimeout(suck1, 1.5*1000, false)
         this.info[[7,7]] = {color: '#FFFF00'}
         this.info[[14,0]] = {color: '#BBBBBB'} */
 
-}
+//}
 
 
 //isoMap = new IsoMap(params)
