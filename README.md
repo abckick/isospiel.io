@@ -1,2 +1,2 @@
 # isospiel
-abckick.github.io/isospiel.io
+https://abckick.github.io/isospiel.io
